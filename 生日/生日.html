@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给你的专属心动站点</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Microsoft YaHei', sans-serif; 
+            background: linear-gradient(135deg, #fdf2f8 0%, #fef7fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        /* 容器样式 */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            padding: 30px;
+        }
+        /* 情书区域 */
+        .love-letter {
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .letter-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #e53e3e;
+        }
+        /* 照片自动播放容器 - 关键修改：使用相对高度 */
+        .photo-slider {
+            width: 100%;
+            /* 使用 padding-bottom 实现自适应比例（4:3为例） */
+            padding-bottom: 75%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        /* 照片本身 - 关键修改：自适应显示 */
+        .photo-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            /* 保持图片比例并完整显示在容器内 */
+            object-fit: contain !important;
+            /* 背景色避免图片比例不符时出现空白 */
+            background-color: #f8f9fa;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        /* 轮播数字指示器 */
+        .slider-indicators {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .indicator.active {
+            background-color: #e53e3e;
+            color: white;
+        }
+        
+        /* 手机端适配 */
+        @media (max-width: 768px) {
+            .photo-slider {
+                padding-bottom: 100%; /* 手机上使用1:1比例 */
+            }
+        }
+        .code-content {
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Consolas', monospace;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .comment { color: #48bb78; } /* 注释颜色（藏情话） */
+        .keyword { color: #9f7aea; } /* 关键字颜色 */
+        .string { color: #ed8936; } /* 字符串颜色 */
+        /* 倒计时区域 */
+        .countdown {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 12px;
+        }
+        .countdown-title {
+            color: #e53e3e;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .countdown-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #e53e3e;
+        }
+        /* 许愿接口区域 */
+        .wish-section {
+            margin-top: 40px;
+        }
+        .wish-title {
+            text-align: center;
+            color: #9f7aea;
+            margin-bottom: 20px;
+        }
+        .wish-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #wish-input {
+            padding: 15px;
+            border: 2px solid #e8f4f8;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: none;
+        }
+        #wish-btn {
+            padding: 12px;
+            background: #9f7aea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        #wish-btn:hover { background: #805ad5; }
+        .wish-response {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(159, 122, 234, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            color: #2d3748;
+            display: none;
+        }
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .countdown-number { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 一、代码情书 + 自动播放合照 -->
+        <section class="love-letter">
+            <h2 class="letter-header">💌 给你的专属代码情书</h2>
+            <!-- 自动播放合照区域 -->
+            <div class="photo-slider">
+                <!-- 替换为你们的合照（支持本地图片或在线链接） -->
+                <img src="images/1.jpg" class="photo-item" alt="我们的回忆1">
+                <img src="images/2.jpg" class="photo-item" alt="我们的回忆2">
+                <img src="images/3.jpg" class="photo-item" alt="我们的回忆3">
+                <img src="images/4.jpg" class="photo-item" alt="我们的回忆4">
+                
+                <!-- 数字指示器容器 -->
+                <div class="slider-indicators">
+                    <div class="indicator active" data-index="0">1</div>
+                    <div class="indicator" data-index="1">2</div>
+                    <div class="indicator" data-index="2">3</div>
+                    <div class="indicator" data-index="3">4</div>
+                </div>
+            </div>
+            <!-- 代码注释藏情话 -->
+            <div class="code-content">
+                <pre>
+<span class="keyword">const</span> myLove = {
+    name: <span class="string">"唐萌琪"</span>, // 全世界最可爱的人
+    meetDate: <span class="string">"2025.9.28"</span>, // 命运的起点
+    distance: <span class="string">"1169km"</span>, // 心与心没有距离
+    favorite: <span class="string">"喜欢小狗小猫呀，喜欢吃喝玩乐呀"</span>, // 记在心里的小细节
+    promise: <span class="string">"永远爱着宝宝"</span>  // 一定会兑现的约定
+};
+
+// 👇 点击下方文字，解锁锁我的秘密祝福
+<span class="comment">// 想你的时候，代码都变成了情话</span>
+<span class="comment">// 异地的日子里，每一秒都在倒计时见面</span>
+<span class="comment">// 你是我写过最完美的代码，没有Bug，全是温柔</span>
+<span class="comment">// 不管相隔多远，我的心永远为你在线</span>
+
+<span class="keyword">function</span> showMyLove() {
+    <span class="comment">// 点击跳转祝福视频（替换为你的视频链接）</span>
+    window.open(<span class="string">"https://你的祝福视频链接.com"</span>, <span class="string">"_blank"</span>);
+}
+
+// 执行心动指令
+showMyLove(); // 点击代码中的注释文字即可触发！</pre>
+            </div>
+        </section>
+
+        <!-- 二、奔现倒计时 -->
+        <section class="countdown">
+            <h3 class="countdown-title">⏳ 下次见面倒计时</h3>
+            <div class="countdown-number" id="countdown-day">0</div>
+            <p style="color: #718096; margin-top: 5px;">天之后，就能紧紧抱住你啦～</p >
+        </section>
+
+        <!-- 三、许愿接口 -->
+        <section class="wish-section">
+            <h3 class="wish-title">✨ 专属许愿墙</h3>
+            <form class="wish-form">
+                <textarea id="wish-input" rows="4" placeholder="输入你的愿望，提交后会收到我的专属回应～"></textarea>
+                <button type="button" id="wish-btn">提交愿望</button>
+                <div class="wish-response" id="wish-response"></div>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        // 1. 合照自动轮播（3秒切换一张）
+        const photos = document.querySelectorAll('.photo-item');
+        const indicators = document.querySelectorAll('.indicator');
+        let currentIndex = 0;
+        let interval;
+
+        // 初始化第一张图片显示
+        photos[0].style.opacity = '1';
+
+        // 轮播函数
+        function startSlide() {
+            interval = setInterval(() => {
+                changeSlide((currentIndex + 1) % photos.length);
+            }, 3000);
+        }
+
+        // 切换图片函数
+        function changeSlide(index) {
+            // 隐藏当前图片
+            photos[currentIndex].style.opacity = '0';
+            indicators[currentIndex].classList.remove('active');
+            
+            // 更新索引
+            currentIndex = index;
+            
+            // 显示新图片
+            photos[currentIndex].style.opacity = '1';
+            indicators[currentIndex].classList.add('active');
+        }
+
+        // 启动轮播
+        startSlide();
+
+        // 点击数字指示器切换图片
+        indicators.forEach(indicator => {
+            indicator.addEventListener('click', () => {
+                // 清除当前定时器
+                clearInterval(interval);
+                // 切换到对应的图片
+                const index = parseInt(indicator.getAttribute('data-index'));
+                changeSlide(index);
+                // 重新启动定时器
+                startSlide();
+            });
+        });
+
+        // 2. 代码注释点击跳转祝福视频
+        const comments = document.querySelectorAll('.comment');
+        comments.forEach(comment => {
+            comment.style.cursor = 'pointer';
+            comment.addEventListener('click', () => {
+                // 替换为你的祝福视频链接（支持B站、抖音、腾讯视频等）
+                window.open("https://你的祝福视频链接.com", "_blank");
+            });
+        });
+
+        // 3. 奔现倒计时（替换为下次见面日期：年,月,日）
+        const meetDate = new Date(2024, 12, 31); // 注意：月份是0-11（12代表1月）
+        function updateCountdown() {
+            const now = new Date();
+            const diff = meetDate - now;
+            const days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+            document.getElementById('countdown-day').textContent = days;
+        }
+        updateCountdown();
+        setInterval(updateCountdown, 1000 * 60 * 60); // 每小时更新一次
+
+        // 4. 许愿接口（提交愿望后显示专属回应）
+        const wishInput = document.getElementById('wish-input');
+        const wishBtn = document.getElementById('wish-btn');
+        const wishResponse = document.getElementById('wish-response');
+
+        // 自定义愿望回应（可根据需要添加更多）
+        const wishReplies = [
+            "宝贝的愿望我收到啦！已经加入我的「必实现清单」，见面就给你兑现～",
+            "哇，这个愿望好甜！我偷偷记下来了，一定会让它变成现实呀～",
+            "不管你想要什么，我都会尽力满足你～ 异地的日子里，让愿望先替我陪伴你～",
+            "愿望已签收！等见面时，我带着惊喜和你一起实现它～",
+            "你的每一个愿望，都是我前进的动力～ 爱你哟！"
+        ];
+
+        wishBtn.addEventListener('click', () => {
+            const wish = wishInput.value.trim();
+            if (!wish) {
+                wishResponse.textContent = "先输入你的愿望呀～";
+                wishResponse.style.display = 'block';
+                return;
+            }
+            // 随机显示一个回应
+            const randomReply = wishReplies[Math.floor(Math.random() * wishReplies.length)];
+            wishResponse.textContent = randomReply;
+            wishResponse.style.display = 'block';
+            wishInput.value = ''; // 清空输入框
+        });
+    </script>
+</body>
+</html>
